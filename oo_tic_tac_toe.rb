@@ -26,7 +26,7 @@ class Human < Player
     puts 'Your turn, what position 1 - 9 would you like to go?'
     choice = gets.chomp.to_i
     until board.get_empty_squares.include?(choice)
-      puts 'Place taken, choose a free space?'
+      puts "Sorry, you can't go there! Please choose a free position."
       choice = gets.chomp.to_i
     end
 
@@ -47,6 +47,7 @@ class Computer < Player
   def take_turn(board)
     choice = board.get_empty_squares.sample
     mark_board(board, choice, 'O')
+    sleep(1)
     board.draw_board
   end
 
@@ -142,11 +143,11 @@ class Game
       end
 
       if game_status == 'human_won'
-        puts 'you win!'
+        puts 'You win!'
       elsif game_status == 'computer_won'
-        puts 'computer wins!'
+        puts "#{computer.name} wins!"
       else
-        puts 'its a draw!'
+        puts "It's a draw!"
       end
 
       puts 'Try again? (y/n)'
