@@ -31,7 +31,6 @@ class Human < Player
     end
 
     mark_board(board, choice, 'X')
-
     board.draw_board
   end
 
@@ -46,13 +45,11 @@ class Computer < Player
   end
 
   def take_turn(board)
-
     choice = board.get_empty_squares.sample
-
     mark_board(board, choice, 'O')
-
     board.draw_board
   end
+
 end
 
 class Square
@@ -118,33 +115,38 @@ class Game
 
   def update_status(board)
     WINNING_COMBOS.each do |combo|
-      game_status = 'computer' if (combo - board.get_computer_squares).empty?
+      self.game_status = 'computer' if (combo - board.get_computer_squares).empty?
       if (combo - board.get_human_squares).empty?
         self.game_status = 'human'
       end
-      game_status = 'draw' if board.get_empty_squares.empty?
+      self.game_status = 'draw' if board.get_empty_squares.empty?
     end
   end
 
   def play
-    computer = Computer.new
-    puts "Your opponent is #{computer.name}"
     human = Human.new
-    board = Board.new
-    board.draw_board
+    loop do
+      self.game_status = 'undecided'
+      computer = Computer.new
+      puts "Your opponent is #{computer.name}"
+      board = Board.new
+      board.draw_board
+      while game_status == 'undecided' do
+        human.take_turn(board)
+        update_status(board)
+        break if game_status != 'undecided'
+        computer.take_turn(board)
+        update_status(board)
+      end
 
-    while game_status == 'undecided' do
-      human.take_turn(board)
-      update_status(board)
-      break if game_status != 'undecided'
-      computer.take_turn(board)
-      update_status(board)
+      puts 'you win!' if game_status == 'human'
+      puts 'computer wins!' if game_status == 'computer'
+      puts 'its a draw!' if game_status == 'draw'
+      puts 'Try again? (y/n)'
+      break if gets.chomp.downcase == 'n'
     end
-
-    puts 'you win!' if game_status == 'human'
-    puts 'computer wins!' if game_status == 'computer'
-    puts 'its a draw!' if game_status == 'draw'
   end
+
 end
 
 
