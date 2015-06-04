@@ -89,10 +89,6 @@ class Square
     @mark = ' '
   end
 
-  def empty?
-    mark == ' '
-  end
-
 end
 
 class Board
