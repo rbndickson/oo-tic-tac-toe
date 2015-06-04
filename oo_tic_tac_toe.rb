@@ -25,7 +25,7 @@ class Human < Player
   def take_turn(board)
     puts 'Your turn, what position 1 - 9 would you like to go?'
     choice = gets.chomp.to_i
-    until board.get_empty_squares.include?(choice)
+    until board.empty_square?(choice)
       puts "Sorry, you can't go there! Please choose a free position."
       choice = gets.chomp.to_i
     end
@@ -45,10 +45,43 @@ class Computer < Player
   end
 
   def take_turn(board)
-    choice = board.get_empty_squares.sample
+    if win(board) != false
+      choice = win(board)
+    elsif defend(board) != false
+      choice = defend(board)
+    else
+     choice = board.get_empty_squares.sample
+    end
+
     mark_board(board, choice, 'O')
     sleep(1)
     board.draw_board
+  end
+
+  def win(board)
+    Board::WINNING_COMBOS.each do |combo|
+      computer_positions = board.get_computer_squares
+      empty_squares = board.get_empty_squares
+      num_occupied_by_computer = (computer_positions & combo).count
+      num_empty = (empty_squares & combo).count
+      if num_occupied_by_computer == 2 && num_empty == 1
+        return (combo - computer_positions)[0]
+      end
+    end
+    false
+  end
+
+  def defend(board)
+    Board::WINNING_COMBOS.each do |combo|
+      human_positions = board.get_human_squares
+      empty_squares = board.get_empty_squares
+      num_occupied_by_human = (human_positions & combo).count
+      num_empty = (empty_squares & combo).count
+      if num_occupied_by_human == 2 && num_empty == 1
+        return (combo - human_positions)[0]
+      end
+    end
+    false
   end
 
 end
@@ -69,6 +102,10 @@ end
 
 class Board
   attr_accessor :squares
+
+  WINNING_COMBOS = [
+    [1, 2, 3], [4, 5, 6], [7, 8, 9], [1, 4, 7],
+    [2, 5, 8], [3, 6, 9], [1, 5, 9], [3, 5, 7]]
 
   def initialize
     @squares = {}
@@ -93,6 +130,10 @@ class Board
     squares.reject { |k,v| v.mark != ' ' }.collect { |k,v| v.position}
   end
 
+  def empty_square?(position)
+    self.get_empty_squares.include?(position)
+  end
+
   def get_computer_squares
     squares.reject { |k,v| v.mark != 'O' }.collect { |k,v| v.position}
   end
@@ -106,16 +147,12 @@ end
 class Game
   attr_accessor :game_status
 
-  WINNING_COMBOS = [
-    [1, 2, 3], [4, 5, 6], [7, 8, 9], [1, 4, 7],
-    [2, 5, 8], [3, 6, 9], [1, 5, 9], [3, 5, 7]]
-
   def initialize
     @game_status = 'undecided'
   end
 
   def update_game_status(board)
-    WINNING_COMBOS.each do |combo|
+    Board::WINNING_COMBOS.each do |combo|
       if (combo - board.get_computer_squares).empty?
         self.game_status = 'computer_won'
       elsif (combo - board.get_human_squares).empty?
