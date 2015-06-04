@@ -1,7 +1,4 @@
-# 2 players decide to play, draw a board. choose who is 'x' and 'o'. 'x' goes
-# first and chooses a square. Players alternate until one has 3 in a row.
-# Whoever gets 3 in a row first is the winner.
-require 'Pry'
+# oo_tic_tac_toe.rb
 
 class Player
 
@@ -184,6 +181,5 @@ class Game
   end
 
 end
-
 
 Game.new.play
