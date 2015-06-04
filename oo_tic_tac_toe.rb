@@ -56,9 +56,9 @@ class Computer < Player
 
   def win(board)
     Board::WINNING_COMBOS.each do |combo|
-      num_occupied_by_computer = (board.computer_squares & combo).count
-      num_empty = (board.empty_squares & combo).count
-      if num_occupied_by_computer == 2 && num_empty == 1
+      amount_occupied_by_computer = (board.computer_squares & combo).count
+      amount_empty = (board.empty_squares & combo).count
+      if amount_occupied_by_computer == 2 && amount_empty == 1
         return (combo - board.computer_squares)[0]
       end
     end
@@ -67,9 +67,9 @@ class Computer < Player
 
   def defend(board)
     Board::WINNING_COMBOS.each do |combo|
-      num_occupied_by_human = (board.human_squares & combo).count
-      num_empty = (board.empty_squares & combo).count
-      if num_occupied_by_human == 2 && num_empty == 1
+      amount_occupied_by_human = (board.human_squares & combo).count
+      amount_empty = (board.empty_squares & combo).count
+      if amount_occupied_by_human == 2 && amount_empty == 1
         return (combo - board.human_squares)[0]
       end
     end
