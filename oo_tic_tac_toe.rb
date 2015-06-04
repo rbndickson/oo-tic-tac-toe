@@ -113,13 +113,13 @@ class Game
     @game_status = 'undecided'
   end
 
-  def update_status(board)
+  def update_game_status(board)
     WINNING_COMBOS.each do |combo|
-      self.game_status = 'computer' if (combo - board.get_computer_squares).empty?
+      self.game_status = 'computer_won' if (combo - board.get_computer_squares).empty?
       if (combo - board.get_human_squares).empty?
-        self.game_status = 'human'
+        self.game_status = 'human_won'
       end
-      self.game_status = 'draw' if board.get_empty_squares.empty?
+      self.game_status = 'finished_as_draw' if board.get_empty_squares.empty?
     end
   end
 
@@ -133,15 +133,15 @@ class Game
       board.draw_board
       while game_status == 'undecided' do
         human.take_turn(board)
-        update_status(board)
+        update_game_status(board)
         break if game_status != 'undecided'
         computer.take_turn(board)
-        update_status(board)
+        update_game_status(board)
       end
 
-      puts 'you win!' if game_status == 'human'
-      puts 'computer wins!' if game_status == 'computer'
-      puts 'its a draw!' if game_status == 'draw'
+      puts 'you win!' if game_status == 'human_won'
+      puts 'computer wins!' if game_status == 'computer_won'
+      puts 'its a draw!' if game_status == 'finished_as_draw'
       puts 'Try again? (y/n)'
       break if gets.chomp.downcase == 'n'
     end
