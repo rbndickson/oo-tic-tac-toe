@@ -114,72 +114,91 @@ class Board
          "          7 | 8 | 9 \n "
   end
 
+  def square_array(mark)
+    squares.reject { |_, v| v.mark != mark }.collect { |_, v| v.position }
+  end
+
+  def computer_squares
+    square_array('O')
+  end
+
+  def human_squares
+    square_array('X')
+  end
+
   def empty_squares
-    squares.reject { |_, v| v.mark != ' ' }.collect { |_, v| v.position }
+    square_array(' ')
   end
 
   def empty_square?(position)
     empty_squares.include?(position)
   end
 
-  def computer_squares
-    squares.reject { |_, v| v.mark != 'O' }.collect { |_, v| v.position }
-  end
-
-  def human_squares
-    squares.reject { |_, v| v.mark != 'X' }.collect { |_, v| v.position }
-  end
-
 end
 
 class Game
-  attr_accessor :game_status
 
   def initialize
-    @game_status = 'undecided'
+    @human = Human.new
+    @computer = Computer.new
+    @current_player = @human
   end
 
-  def update_game_status(board)
-    Board::WINNING_COMBOS.each do |combo|
-      if (combo - board.computer_squares).empty?
-        self.game_status = 'computer_won'
-      elsif (combo - board.human_squares).empty?
-        self.game_status = 'human_won'
-      end
+  def change_player
+    if @current_player == @human
+      @current_player = @computer
+    else
+      @current_player = @human
     end
   end
 
+  def human_win?(board)
+    outcome = false
+    Board::WINNING_COMBOS.each do |combo|
+      outcome = true if (combo - board.human_squares).empty?
+    end
+    outcome
+  end
+
+  def computer_win?(board)
+    outcome = false
+    Board::WINNING_COMBOS.each do |combo|
+      outcome = true if (combo - board.computer_squares).empty?
+    end
+    outcome
+  end
+
   def play
-    human = Human.new
     loop do
-      self.game_status = 'undecided'
-      computer = Computer.new
-      puts "Your opponent is #{computer.name}"
+      puts "Your opponent is #{@computer.name}"
       sleep(2)
       board = Board.new
       board.draw_board
 
-      while game_status == 'undecided' && !board.empty_squares.empty?
-        human.take_turn(board)
-        update_game_status(board)
-        break if game_status != 'undecided'
-        computer.take_turn(board)
-        update_game_status(board)
+      while !board.empty_squares.empty? &&
+            !human_win?(board) && !computer_win?(board)
+        if @current_player == @human
+          @human.take_turn(board)
+          change_player
+        else
+          @computer.take_turn(board)
+          change_player
+        end
       end
 
-      if game_status == 'human_won'
-        puts 'You win!'
-      elsif game_status == 'computer_won'
-        puts "#{computer.name} wins!"
+      if human_win?(board)
+        puts "You win!"
+      elsif computer_win?(board)
+        puts "#{@computer.name} wins!"
       else
         puts "It's a draw!"
       end
 
       puts 'Try again? (y/n)'
       break if gets.chomp.downcase == 'n'
+      @computer = Computer.new
     end
   end
-
 end
 
 Game.new.play
