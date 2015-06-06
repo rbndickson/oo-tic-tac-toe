@@ -179,11 +179,10 @@ class Game
             !human_win?(board) && !computer_win?(board)
         if @current_player == @human
           @human.take_turn(board)
-          change_player
         else
           @computer.take_turn(board)
-          change_player
         end
+        change_player
       end
 
       if human_win?(board)
